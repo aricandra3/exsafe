@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ exSafe — NFT Community Safety Desk
 
-## Getting Started
+**Check it before you sign it.** exSafe gives NFT communities one clear verdict —
+🟢 **SAFE** / 🟡 **CAUTION** / 🔴 **DANGER** — on any link, contract address,
+transaction, signature request, or suspicious announcement, *before* a member
+connects a wallet or signs.
 
-First, run the development server:
+Wallet drainers steal hundreds of millions of dollars a year (see Scam Sniffer's
+annual reports for the latest figure). Most of it happens through one bad
+signature — a `setApprovalForAll`, a `Permit`, a fake mint link posted in a
+Discord that got hijacked. Wallets like MetaMask show you almost nothing useful
+at that moment. exSafe does.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## What it does
+
+One **verdict engine** ("the brain"), exposed through the places communities
+actually are:
+
+| Surface | What it does |
+|---|---|
+| **Web app** | Paste anything → clear verdict card with a plain-language explanation and a transparent signal checklist. |
+| **Discord bot** | Auto-scans every link/address posted in a channel and replies with a verdict. `/check` and `/report` slash commands. |
+| **`/api/check`** | The shared brain any surface (or your own tool) can call. |
+
+It understands four kinds of input, auto-detected:
+
+- **Links** — phishing blocklist (MetaMask's live `eth-phishing-detect`),
+  typosquat / look-alike detection, domain age, community lists.
+- **Contracts / addresses** — GoPlus reputation (phishing, drainer, honeypot,
+  hidden owner…), Etherscan verified-source + contract age.
+- **Transactions & signatures (the flex)** — decodes `setApprovalForAll`,
+  `approve`, `permit`, Permit2 and Seaport signatures into plain English, and
+  **cross-checks the address receiving the permission** against reputation feeds.
+  "This gives `0x00…dbad` permission to transfer EVERY NFT you own — and that
+  address has been reported as a drainer."
+- **Announcements** — Claude flags social-engineering tactics (false urgency,
+  "we got hacked, use this new link", claim/airdrop bait) and checks every link
+  inside.
+
+### The community wedge
+
+Other tools are individual browser extensions. exSafe is a **community safety
+desk**: mods verify official links (allowlist), members report scams (blocklist),
+and every verdict is scoped to *your* community (Discord guild). The bot lives
+where your members already are — no install required.
+
+---
+
+## Architecture — one brain, many doors
+
+```
+                 detect → checkers → score → narrate (Claude)
+                 ┌───────────────────────────────────────────┐
+  web app  ─────▶│  lib/engine/runCheck()                     │
+  discord  ─────▶│    ├─ checkers/url        (phishing, RDAP) │
+  /api     ─────▶│    ├─ checkers/contract   (GoPlus, scan)   │
+                 │    ├─ checkers/calldata   (viem decode)    │
+                 │    ├─ checkers/announcement (Claude)       │
+                 │    └─ community/store     (allow/blocklist)│
+                 └───────────────────────────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Everything **degrades gracefully**: with zero API keys the app still runs
+(GoPlus, phishing list, RDAP and the community layer need no key; Claude falls
+back to deterministic narration; Etherscan signals are simply skipped and noted).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Quickstart
 
-## Learn More
+```bash
+npm install
+cp .env.example .env.local   # optional — the app runs without any keys
 
-To learn more about Next.js, take a look at the following resources:
+# 1) Web app + API
+npm run dev                  # http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 2) Discord bot (needs a bot token — see .env.example)
+npm run bot
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Try the buttons on the homepage, or:
 
-## Deploy on Vercel
+```bash
+curl -s localhost:3000/api/check -H 'content-type: application/json' \
+  -d '{"input":"opensea-mint.net"}'
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Discord setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create an app at <https://discord.com/developers/applications>.
+2. **Bot** tab → enable **Message Content Intent** (required for auto-scan).
+3. Invite with scopes `bot` + `applications.commands` (perms: Send Messages,
+   Embed Links).
+4. Put the token/client id (and optionally a guild id) in `.env.local`, then
+   `npm run bot`.
+
+---
+
+## API
+
+`POST /api/check`
+
+```jsonc
+// request
+{ "input": "0x...", "chainId": "1", "community": "guild-123", "lang": "en" }
+// response
+{ "verdict": "DANGER", "score": 100, "kind": "calldata",
+  "summary": "...", "explanation": "...", "recommendation": "...",
+  "signals": [{ "label": "...", "severity": "danger", "detail": "...", "source": "GoPlus" }],
+  "meta": { "chainName": "Ethereum", "checkedAt": "...", "degraded": [], "aiNarrated": true } }
+```
+
+`POST /api/report` → `{ "value": "scam.xyz", "type": "domain", "list": "block", "community": "guild-123" }`
+
+---
+
+## Data sources
+
+MetaMask [eth-phishing-detect](https://github.com/MetaMask/eth-phishing-detect) ·
+[GoPlus Security](https://gopluslabs.io) · [Etherscan](https://etherscan.io/apis) ·
+[RDAP](https://rdap.org) · on-chain calldata decoding via
+[viem](https://viem.sh) · your community's own reports.
+
+## Limitations
+
+exSafe surfaces risk signals; it is **not financial advice**, and no automated
+check is a guarantee of safety. Absence of a signal is not proof something is
+safe. RDAP does not cover every TLD (e.g. `.io`). The community store is a
+file-backed MVP — swap it for a database for multi-instance persistence.
+
+## Roadmap
+
+- Full transaction simulation (Tenderly / Alchemy) showing exact asset outflow
+- MetaMask Snap for in-wallet insights at signing time
+- Persistent DB + mod dashboard for the community desk
+- Browser extension companion

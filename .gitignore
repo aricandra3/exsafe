@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# exSafe runtime community reports (generated at runtime)
+/data/community.runtime.json
 
 # vercel
 .vercel

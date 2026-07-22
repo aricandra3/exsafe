@@ -1,0 +1,15 @@
+{
+  "note": "Seed data for the exSafe Community Safety Desk. Allowlist = links/contracts a community's mods have verified. Blocklist = things members have reported. Real phishing coverage comes from the live MetaMask eth-phishing-detect feed; these entries demonstrate the community layer.",
+  "entries": [
+    { "value": "opensea.io", "type": "domain", "list": "allow", "reason": "Official OpenSea marketplace", "community": "global" },
+    { "value": "blur.io", "type": "domain", "list": "allow", "reason": "Official Blur marketplace", "community": "global" },
+    { "value": "magiceden.io", "type": "domain", "list": "allow", "reason": "Official Magic Eden marketplace", "community": "global" },
+    { "value": "foundation.app", "type": "domain", "list": "allow", "reason": "Official Foundation", "community": "global" },
+    { "value": "zora.co", "type": "domain", "list": "allow", "reason": "Official Zora", "community": "global" },
+
+    { "value": "opensea-mint.net", "type": "domain", "list": "block", "reason": "Reported by 47 members as a fake OpenSea mint page (sample)", "community": "global" },
+    { "value": "free-mint-claim.xyz", "type": "domain", "list": "block", "reason": "Reported drainer landing page (sample)", "community": "global" },
+    { "value": "claim-airdrop-reward.com", "type": "domain", "list": "block", "reason": "Reported fake airdrop claim (sample)", "community": "global" },
+    { "value": "0x0000000000000000000000000000000000badbad", "type": "address", "list": "block", "reason": "Reported wallet drainer contract (sample)", "community": "global" }
+  ]
+}

@@ -1,65 +1,99 @@
-import Image from "next/image";
+import { Desk } from "./desk";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-10 sm:py-14">
+      <header className="mb-8">
+        <div className="mb-3 flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-lg ring-1 ring-emerald-500/30">
+            🛡️
+          </div>
+          <span className="text-xl font-semibold tracking-tight">
+            ex<span className="text-emerald-400">Safe</span>
+          </span>
+          <span className="ml-1 rounded-full border border-border bg-panel px-2 py-0.5 text-[11px] font-medium text-muted">
+            Community Safety Desk
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-[28px]">
+          Check it before you sign it.
+        </h1>
+        <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-muted">
+          Paste a link, contract address, transaction data, or a suspicious
+          announcement. exSafe gives your NFT community one clear verdict —{" "}
+          <span className="text-emerald-400">safe</span>,{" "}
+          <span className="text-amber-400">caution</span>, or{" "}
+          <span className="text-red-400">danger</span> — before anyone connects a
+          wallet.
+        </p>
+      </header>
+
+      <Desk />
+
+      <section className="mt-16">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
+          How it works
+        </h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              t: "Paste anything",
+              d: "A link, contract address, transaction data, or a suspicious announcement.",
+            },
+            {
+              t: "exSafe checks",
+              d: "Live phishing feeds, contract reputation, and on-chain decoding — cross-referenced with your community's own reports.",
+            },
+            {
+              t: "Get one verdict",
+              d: "Safe, caution, or danger — in plain language, with exactly what to do next.",
+            },
+          ].map((s, i) => (
+            <div key={s.t} className="rounded-2xl border border-border bg-panel p-5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-sm font-bold text-emerald-400 ring-1 ring-emerald-500/30">
+                {i + 1}
+              </div>
+              <h3 className="mt-3 text-[15px] font-semibold">{s.t}</h3>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted">{s.d}</p>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
+          Who it&apos;s for
+        </h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            { t: "Collectors", d: "Just want the mint — not to read hex or spot a fake domain at 2am." },
+            { t: "Mods & founders", d: "Can't watch every link in the server 24/7. exSafe can." },
+            { t: "The whole community", d: "One bad signature drains wallets and trust. Stop it before it spreads." },
+          ].map((p) => (
+            <div key={p.t} className="rounded-2xl border border-border bg-panel p-5">
+              <h3 className="text-[15px] font-semibold text-emerald-400">{p.t}</h3>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted">{p.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] p-6 text-center">
+        <p className="text-[15px] font-medium">
+          Crypto-native, Discord-first — built for the communities launching the
+          next wave of NFTs.
+        </p>
+        <p className="mt-1 text-[13px] text-muted">
+          Also runs as a Discord bot that auto-scans links right in your server.
+        </p>
+      </section>
+
+      <footer className="mt-12 border-t border-border pt-5 text-[12px] leading-relaxed text-muted">
+        Sources: MetaMask eth-phishing-detect, GoPlus Security, Etherscan, RDAP,
+        on-chain calldata decoding, and your community&apos;s own reports. exSafe
+        surfaces risk signals — it is not financial advice, and no automated check
+        is a guarantee of safety.
+      </footer>
+    </main>
   );
 }
