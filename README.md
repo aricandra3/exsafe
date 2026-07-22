@@ -63,8 +63,23 @@ where your members already are — no install required.
 ```
 
 Everything **degrades gracefully**: with zero API keys the app still runs
-(GoPlus, phishing list, RDAP and the community layer need no key; Claude falls
-back to deterministic narration; Etherscan signals are simply skipped and noted).
+(GoPlus, phishing list, RDAP and the community layer need no key; LLM narration
+falls back to deterministic text — set `AI_API_KEY` for Xiaomi MiMo /
+OpenAI-compatible, or `ANTHROPIC_API_KEY` for Claude; Etherscan signals are
+simply skipped and noted).
+
+### AI keys (narration)
+
+```bash
+# Xiaomi MiMo (recommended if you already farmed keys into 9Router)
+AI_PROVIDER=openai
+AI_API_KEY=sk-...
+AI_BASE_URL=https://api.xiaomimimo.com/v1
+AI_MODEL=mimo-v2.5-pro
+```
+
+Do **not** point Vercel at `localhost:20128` (9Router). Use the public MiMo
+base URL above. Anthropic still works via `ANTHROPIC_API_KEY` if preferred.
 
 ---
 

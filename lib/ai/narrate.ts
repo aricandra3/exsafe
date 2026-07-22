@@ -1,6 +1,6 @@
-import { config } from "@/lib/config";
+import { chatComplete, extractJson } from "@/lib/ai/client";
+import { config, has } from "@/lib/config";
 import type { InputKind, Signal, Verdict } from "@/lib/engine/types";
-import { anthropic, extractJson, textOf } from "./client";
 
 export interface Narration {
   summary: string;
@@ -23,8 +23,7 @@ const SYSTEM = (lang: string) =>
 {"summary": string (<=120 char headline), "explanation": string (2-4 short plain-language sentences), "recommendation": string (one concrete action such as "Do not connect your wallet.")}`;
 
 export async function narrate(input: NarrateInput): Promise<Narration> {
-  const client = anthropic();
-  if (!client) return fallback(input);
+  if (!has.ai()) return fallback(input);
 
   try {
     const lang = (input.lang ?? config.narrationLang) === "id" ? "Indonesian" : "English";
@@ -41,14 +40,15 @@ export async function narrate(input: NarrateInput): Promise<Narration> {
       })),
     });
 
-    const message = await client.messages.create({
-      model: config.anthropicModel,
-      max_tokens: 500,
+    const text = await chatComplete({
       system: SYSTEM(lang),
-      messages: [{ role: "user", content: payload }],
+      user: payload,
+      // MiMo may spend budget on reasoning — keep headroom for the JSON answer.
+      maxTokens: 1000,
     });
+    if (!text) return fallback(input);
 
-    const json = extractJson<Partial<Narration>>(textOf(message));
+    const json = extractJson<Partial<Narration>>(text);
     if (json?.summary && json?.explanation && json?.recommendation) {
       return {
         summary: String(json.summary),
@@ -58,12 +58,12 @@ export async function narrate(input: NarrateInput): Promise<Narration> {
       };
     }
   } catch {
-    // fall through to deterministic narration
+    // fall through
   }
   return fallback(input);
 }
 
-/** Deterministic narration so the product still works with no Claude key. */
+/** Deterministic narration so the product still works with no LLM key. */
 function fallback(input: NarrateInput): Narration {
   const { verdict, signals } = input;
   const dangers = signals.filter((s) => s.severity === "danger");
