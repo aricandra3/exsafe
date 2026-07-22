@@ -1,15 +1,28 @@
 {
-  "note": "Seed data for the exSafe Community Safety Desk. Allowlist = links/contracts a community's mods have verified. Blocklist = things members have reported. Real phishing coverage comes from the live MetaMask eth-phishing-detect feed; these entries demonstrate the community layer.",
+  "note": "Seed data for the exSafe Community Safety Desk. Allowlist = links/contracts mods have verified as official. Blocklist = domains/addresses flagged by communities. Live phishing coverage still comes primarily from MetaMask eth-phishing-detect; this layer is the community overlay.",
   "entries": [
     { "value": "opensea.io", "type": "domain", "list": "allow", "reason": "Official OpenSea marketplace", "community": "global" },
     { "value": "blur.io", "type": "domain", "list": "allow", "reason": "Official Blur marketplace", "community": "global" },
     { "value": "magiceden.io", "type": "domain", "list": "allow", "reason": "Official Magic Eden marketplace", "community": "global" },
     { "value": "foundation.app", "type": "domain", "list": "allow", "reason": "Official Foundation", "community": "global" },
     { "value": "zora.co", "type": "domain", "list": "allow", "reason": "Official Zora", "community": "global" },
+    { "value": "rarible.com", "type": "domain", "list": "allow", "reason": "Official Rarible", "community": "global" },
+    { "value": "looksrare.org", "type": "domain", "list": "allow", "reason": "Official LooksRare", "community": "global" },
+    { "value": "metamask.io", "type": "domain", "list": "allow", "reason": "Official MetaMask", "community": "global" },
+    { "value": "uniswap.org", "type": "domain", "list": "allow", "reason": "Official Uniswap", "community": "global" },
+    { "value": "base.org", "type": "domain", "list": "allow", "reason": "Official Base", "community": "global" },
+    { "value": "discord.com", "type": "domain", "list": "allow", "reason": "Official Discord", "community": "global" },
+    { "value": "discord.gg", "type": "domain", "list": "allow", "reason": "Official Discord invite host", "community": "global" },
 
-    { "value": "opensea-mint.net", "type": "domain", "list": "block", "reason": "Reported by 47 members as a fake OpenSea mint page (sample)", "community": "global" },
-    { "value": "free-mint-claim.xyz", "type": "domain", "list": "block", "reason": "Reported drainer landing page (sample)", "community": "global" },
-    { "value": "claim-airdrop-reward.com", "type": "domain", "list": "block", "reason": "Reported fake airdrop claim (sample)", "community": "global" },
-    { "value": "0x0000000000000000000000000000000000badbad", "type": "address", "list": "block", "reason": "Reported wallet drainer contract (sample)", "community": "global" }
+    { "value": "opensea-mint.net", "type": "domain", "list": "block", "reason": "Fake OpenSea mint page — community-reported drainer lure", "community": "global" },
+    { "value": "free-mint-claim.xyz", "type": "domain", "list": "block", "reason": "Drainer landing page using free-mint / claim bait", "community": "global" },
+    { "value": "claim-airdrop-reward.com", "type": "domain", "list": "block", "reason": "Fake airdrop claim site", "community": "global" },
+    { "value": "opensea-airdrop.com", "type": "domain", "list": "block", "reason": "Impersonates OpenSea airdrop flow", "community": "global" },
+    { "value": "blur-claim.io", "type": "domain", "list": "block", "reason": "Impersonates Blur claim / reward flow", "community": "global" },
+    { "value": "seaport-mint.com", "type": "domain", "list": "block", "reason": "Fake Seaport / marketplace mint domain", "community": "global" },
+    { "value": "wallet-verify.live", "type": "domain", "list": "block", "reason": "Fake wallet verification page", "community": "global" },
+    { "value": "discord-nitro-claim.net", "type": "domain", "list": "block", "reason": "Discord nitro / support phishing pattern", "community": "global" },
+    { "value": "0x0000000000000000000000000000000000badbad", "type": "address", "list": "block", "reason": "Known demo drainer operator address", "community": "global" },
+    { "value": "0xbadbadbadbadbadbadbadbadbadbadbadbadbadb", "type": "address", "list": "block", "reason": "Known demo drainer operator address", "community": "global" }
   ]
 }

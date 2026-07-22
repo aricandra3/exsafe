@@ -88,14 +88,25 @@ curl -s localhost:3000/api/check -H 'content-type: application/json' \
   -d '{"input":"opensea-mint.net"}'
 ```
 
-### Discord setup
+### Discord setup {#discord-setup}
 
 1. Create an app at <https://discord.com/developers/applications>.
 2. **Bot** tab → enable **Message Content Intent** (required for auto-scan).
 3. Invite with scopes `bot` + `applications.commands` (perms: Send Messages,
-   Embed Links).
-4. Put the token/client id (and optionally a guild id) in `.env.local`, then
-   `npm run bot`.
+   Embed Links, Read Message History).
+4. Put the token/client id (and optionally a guild id) in `.env.local`.
+5. Set `NEXT_PUBLIC_DISCORD_INVITE` to the bot invite URL so the landing page
+   shows **Add to Discord**.
+6. Point `EXSAFE_API_URL` at the deployed web API, then `npm run bot`.
+
+### Shareable verdicts & judge demo
+
+- Any check updates the URL: `?q=<input>&chain=8453&lang=en`
+- Use **Copy share link** on the verdict card
+- Judge path: open `/?demo=judge` or click **Run demo** (official → typosquat →
+  drainer approval → hijacked announcement)
+
+Default chain is **Base** (`8453`) for Vibestarter / Wave 1 alignment.
 
 ---
 
@@ -105,12 +116,12 @@ curl -s localhost:3000/api/check -H 'content-type: application/json' \
 
 ```jsonc
 // request
-{ "input": "0x...", "chainId": "1", "community": "guild-123", "lang": "en" }
+{ "input": "0x...", "chainId": "8453", "community": "guild-123", "lang": "en" }
 // response
 { "verdict": "DANGER", "score": 100, "kind": "calldata",
   "summary": "...", "explanation": "...", "recommendation": "...",
   "signals": [{ "label": "...", "severity": "danger", "detail": "...", "source": "GoPlus" }],
-  "meta": { "chainName": "Ethereum", "checkedAt": "...", "degraded": [], "aiNarrated": true } }
+  "meta": { "chainName": "Base", "checkedAt": "...", "degraded": [], "aiNarrated": true } }
 ```
 
 `POST /api/report` → `{ "value": "scam.xyz", "type": "domain", "list": "block", "community": "guild-123" }`

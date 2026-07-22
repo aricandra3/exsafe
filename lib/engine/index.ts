@@ -4,7 +4,7 @@ import { checkAnnouncement } from "@/lib/checkers/announcement";
 import { checkCalldata, checkTypedData } from "@/lib/checkers/calldata";
 import { checkContract } from "@/lib/checkers/contract";
 import { checkUrl } from "@/lib/checkers/url";
-import { CHAIN_NAMES, config } from "@/lib/config";
+import { CHAIN_NAMES, config, humanizeDegraded } from "@/lib/config";
 import { detectInput } from "./detect";
 import { scoreSignals } from "./score";
 import type { CheckResult, InputKind, Signal } from "./types";
@@ -80,7 +80,7 @@ export async function runCheck(rawInput: string, opts: RunOptions = {}): Promise
       chainId,
       chainName: CHAIN_NAMES[chainId],
       checkedAt: new Date().toISOString(),
-      degraded: [...new Set(degraded)],
+      degraded: humanizeDegraded([...new Set(degraded)]),
       aiNarrated: narration.aiNarrated,
     },
   };
