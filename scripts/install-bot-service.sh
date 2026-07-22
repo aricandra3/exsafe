@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Host exSafe Discord bot as a user systemd service (boot-persistent via linger).
 # Usage:
-#   1) Put secrets in /home/exsild/Projects/web3/exsafe/.env.local  (never commit)
+#   1) Put secrets in exsafe/.env.local  (never commit)
 #   2) ./scripts/install-bot-service.sh
 #   3) systemctl --user status exsafe-bot
 set -euo pipefail
@@ -10,6 +10,15 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 UNIT_PATH="$UNIT_DIR/exsafe-bot.service"
 ENV_FILE="$ROOT/.env.local"
+
+# Prefer project-local tsx + hermes/local node (systemd has a tiny PATH).
+NODE_BIN="$(command -v node || true)"
+if [[ -x "$HOME/.local/bin/node" ]]; then NODE_BIN="$HOME/.local/bin/node"; fi
+if [[ -x "$HOME/.hermes/node/bin/node" ]]; then NODE_BIN="$HOME/.hermes/node/bin/node"; fi
+TSX_BIN="$ROOT/node_modules/tsx/dist/cli.mjs"
+if [[ ! -f "$TSX_BIN" ]]; then
+  TSX_BIN="$ROOT/node_modules/.bin/tsx"
+fi
 
 cd "$ROOT"
 
@@ -22,14 +31,21 @@ Create it with at least:
   DISCORD_CLIENT_ID=...
   DISCORD_GUILD_ID=...          # optional but recommended
   EXSAFE_API_URL=https://exsafe-mu.vercel.app
-  NEXT_PUBLIC_DISCORD_INVITE=... # optional; landing CTA
 
 Then re-run: $0
 EOF
   exit 1
 fi
 
-# Validate required keys without printing values
+if [[ -z "${NODE_BIN}" || ! -x "${NODE_BIN}" ]]; then
+  echo "node not found" >&2
+  exit 1
+fi
+if [[ ! -e "$TSX_BIN" ]]; then
+  echo "tsx not found at $TSX_BIN — run npm install first" >&2
+  exit 1
+fi
+
 python3 - <<'PY'
 from pathlib import Path
 import sys
@@ -55,7 +71,6 @@ for k in sorted(vals):
     print(f"  {k}: {'SET' if v else 'EMPTY'} (len={len(v)})")
 cid = vals.get("DISCORD_CLIENT_ID", "")
 if cid:
-    # Send Messages + Embed Links + Read Message History + View Channel
     perms = 1024 + 2048 + 16384 + 65536
     invite = (
         "https://discord.com/api/oauth2/authorize"
@@ -68,6 +83,8 @@ if [[ ! -d node_modules ]]; then
   npm ci
 fi
 
+PATH_EXTRA="$(dirname "$NODE_BIN"):$HOME/.local/bin:$HOME/.hermes/node/bin:/usr/bin"
+
 mkdir -p "$UNIT_DIR"
 cat > "$UNIT_PATH" <<EOF
 [Unit]
@@ -79,11 +96,11 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=$ROOT
 Environment=NODE_ENV=production
+Environment=PATH=$PATH_EXTRA
 EnvironmentFile=$ENV_FILE
-ExecStart=$(command -v npx) tsx bot/index.ts
+ExecStart=$NODE_BIN $TSX_BIN bot/index.ts
 Restart=always
 RestartSec=5
-# Avoid runaway log growth
 StandardOutput=journal
 StandardError=journal
 
@@ -93,9 +110,10 @@ EOF
 
 systemctl --user daemon-reload
 systemctl --user enable --now exsafe-bot.service
-sleep 2
+sleep 3
 systemctl --user --no-pager --full status exsafe-bot.service || true
 echo
-echo "Logs: journalctl --user -u exsafe-bot -f"
+echo "Logs: journalctl --user -u exsafe-bot -n 50 --no-pager"
+echo "Follow: journalctl --user -u exsafe-bot -f"
 echo "Stop: systemctl --user stop exsafe-bot"
-echo "Boot persistence: linger is required (loginctl show-user \$USER -p Linger)"
+echo "Boot persistence: linger required (loginctl show-user \$USER -p Linger)"
