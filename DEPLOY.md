@@ -80,10 +80,38 @@ npm run bot
 You should see `exSafe bot online as <name>`. Post `opensea-mint.net` in a
 channel — the bot replies with a red verdict. Try `/check` and `/report` too.
 
-### Hosting the bot 24/7 (optional, after the hackathon)
-Any always-on host works — Railway, Render (Background Worker), Fly.io, or a
-small VPS. Start command: `npm run bot`. Set the same env vars there, with
-`EXSAFE_API_URL` pointing at your Vercel deployment.
+### Hosting the bot 24/7 (VPS / systemd — recommended for demo)
+
+Discord bots need a long-lived process (not Vercel serverless). On a Linux VPS
+with systemd user linger:
+
+```bash
+cd exsafe
+# .env.local must include:
+#   DISCORD_BOT_TOKEN=...
+#   DISCORD_CLIENT_ID=...
+#   DISCORD_GUILD_ID=...   # optional
+#   EXSAFE_API_URL=https://exsafe-mu.vercel.app
+chmod +x scripts/install-bot-service.sh
+./scripts/install-bot-service.sh
+```
+
+Checks:
+```bash
+systemctl --user status exsafe-bot
+journalctl --user -u exsafe-bot -f
+loginctl show-user "$USER" -p Linger   # must be yes
+```
+
+Also set on Vercel (web landing CTA):
+```
+NEXT_PUBLIC_DISCORD_INVITE=<oauth invite url printed by install script>
+DEFAULT_CHAIN_ID=8453
+```
+
+### Other hosts
+Railway / Render (Background Worker) / Fly.io also work. Start command:
+`npm run bot`. Same env vars; `EXSAFE_API_URL` → Vercel production.
 
 ---
 
